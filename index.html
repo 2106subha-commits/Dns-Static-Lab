@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberFortix :: DNS Resolution Simulator</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="container">
+
+<header>
+    <div class="brand-mark">
+        <div class="brand-glyph">NS</div>
+        <div>
+            <h1>CyberFortix DNS Resolution Simulator</h1>
+            <p>A safe, offline lab for practicing dig / nslookup and watching how resolution actually happens</p>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="chip">Zone <b>cyberfortix.lab</b></div>
+        <div class="chip">Resolver <b>10.10.10.53</b></div>
+        <div class="status"><span class="pulse-dot"></span> SIMULATION ONLINE</div>
+    </div>
+</header>
+
+<main>
+
+<!-- COMMAND REFERENCE -->
+<section class="panel">
+    <div class="panel-label">Command Reference</div>
+    <div class="ref-body">
+
+        <div class="ref-group">
+            <h3>Available commands</h3>
+            <button class="cmd-chip" data-cmd="dig cyberfortix.lab A">dig cyberfortix.lab A</button>
+            <button class="cmd-chip" data-cmd="dig cyberfortix.lab AAAA">dig cyberfortix.lab AAAA</button>
+            <button class="cmd-chip" data-cmd="dig portal.cyberfortix.lab CNAME">dig portal.cyberfortix.lab CNAME</button>
+            <button class="cmd-chip" data-cmd="dig cyberfortix.lab MX">dig cyberfortix.lab MX</button>
+            <button class="cmd-chip" data-cmd="dig cyberfortix.lab NS">dig cyberfortix.lab NS</button>
+            <button class="cmd-chip" data-cmd="dig cyberfortix.lab TXT">dig cyberfortix.lab TXT</button>
+            <button class="cmd-chip" data-cmd="dig cyberfortix.lab A +trace">dig cyberfortix.lab A +trace</button>
+            <button class="cmd-chip" data-cmd="nslookup cyberfortix.lab">nslookup cyberfortix.lab</button>
+            <button class="cmd-chip" data-cmd="help">help</button>
+            <button class="cmd-chip" data-cmd="clear">clear</button>
+        </div>
+
+        <div class="ref-group">
+            <h3>Zone records you can query</h3>
+            <table class="zone-table">
+                <tr><td>cyberfortix.lab</td><td><span class="type-tag">A</span></td></tr>
+                <tr><td>cyberfortix.lab</td><td><span class="type-tag">AAAA</span></td></tr>
+                <tr><td>cyberfortix.lab</td><td><span class="type-tag">MX</span></td></tr>
+                <tr><td>cyberfortix.lab</td><td><span class="type-tag">NS</span></td></tr>
+                <tr><td>cyberfortix.lab</td><td><span class="type-tag">TXT</span></td></tr>
+                <tr><td>portal.cyberfortix.lab</td><td><span class="type-tag">CNAME</span></td></tr>
+                <tr><td>training.cyberfortix.lab</td><td><span class="type-tag">A</span></td></tr>
+                <tr><td>mail1.cyberfortix.lab</td><td><span class="type-tag">A</span></td></tr>
+                <tr><td>mail2.cyberfortix.lab</td><td><span class="type-tag">A</span></td></tr>
+            </table>
+        </div>
+
+        <div class="ref-group">
+            <h3>Anything else</h3>
+            <p style="color:var(--muted); font-size:11.5px; line-height:1.5; margin:0;">
+                Only the commands above run in this terminal. Every other
+                input — including real shell commands — is rejected by
+                the simulator on purpose.
+            </p>
+        </div>
+
+    </div>
+</section>
+
+<!-- TERMINAL -->
+<section class="panel">
+    <div class="terminal-header">
+        <div class="dots">
+            <div class="dot r"></div>
+            <div class="dot y"></div>
+            <div class="dot g"></div>
+        </div>
+        <div class="terminal-title">student@cyberfortix &mdash; simulated shell</div>
+    </div>
+
+    <div id="output"><span class="welcome">CyberFortix DNS Training Terminal
+<span class="hint">Type "help" to view every available command, or click one on the left.
+Only dig, nslookup, help and clear are wired up — nothing else executes here.
+
+Try:</span>
+dig cyberfortix.lab A</span></div>
+
+    <div class="input-box">
+        <span class="prompt">student@cyberfortix:~$</span>
+        <input id="commandInput" type="text" autocomplete="off" spellcheck="false"
+               placeholder="type a command…" autofocus>
+    </div>
+</section>
+
+<!-- VISUALIZER -->
+<section class="panel visualizer">
+    <div class="panel-label" style="padding:0; border:0; margin-bottom:10px;">Live Resolution Path</div>
+    <p class="viz-desc">
+        Watch a query travel down the real DNS hierarchy — resolver, root,
+        TLD, authoritative — and the answer travel back up.
+    </p>
+
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="ladder">
+
+        <div class="node" id="node-client">
+            <div class="role">Student Machine</div>
+            <div class="ip">DNS client</div>
+        </div>
+
+        <div class="line" id="line0"><div class="packet" id="packet0"></div></div>
+
+        <div class="node" id="node-resolver">
+            <div class="role">Recursive Resolver</div>
+            <div class="ip">10.10.10.53</div>
+        </div>
+
+        <div class="line" id="line1"><div class="packet" id="packet1"></div></div>
+
+        <div class="node" id="node-root">
+            <div class="role">Root Server</div>
+            <div class="ip">a.root-servers.lab &middot; 198.41.0.4</div>
+        </div>
+
+        <div class="line" id="line2"><div class="packet" id="packet2"></div></div>
+
+        <div class="node" id="node-tld">
+            <div class="role">.lab TLD Server</div>
+            <div class="ip">a.lab-servers.lab &middot; 192.5.6.30</div>
+        </div>
+
+        <div class="line" id="line3"><div class="packet" id="packet3"></div></div>
+
+        <div class="node" id="node-auth">
+            <div class="role">Authoritative Server</div>
+            <div class="ip">ns1.cyberfortix.lab &middot; 10.10.10.53</div>
+        </div>
+
+    </div>
+
+    <div class="narration" id="narration">
+        <div class="step-count">Idle</div>
+        <div class="step-text">Run a dig or nslookup command to start a resolution.</div>
+    </div>
+
+    <div class="result-card" id="resultCard">
+        <span class="badge" id="resultBadge">RECORD</span>
+        <div class="result-value" id="resultValue">
+            <span id="resultText"></span>
+            <button class="copy-btn" id="copyBtn">copy</button>
+        </div>
+        <div class="result-explain" id="resultExplain"></div>
+        <div class="multi-list" id="multiList"></div>
+    </div>
+
+</section>
+
+</main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
